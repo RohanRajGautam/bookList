@@ -61,6 +61,54 @@ class UI {
   }
 }
 
+// Local Storage Class
+class Store {
+  static getBooks() {
+    let books;
+    if (localStorage.getItem("books") === null) {
+      books = [];
+    } else {
+      books = JSON.parse(localStorage.getItem("books"));
+    }
+
+    return books;
+  }
+
+  static displayBooks() {
+    const books = Store.getBooks();
+
+    books.forEach(function (book) {
+      const ui = new UI();
+
+      // Add book to UI
+      ui.addBookToList(book);
+    });
+  }
+
+  static addBook(book) {
+    const books = Store.getBooks();
+
+    books.push(book);
+
+    localStorage.setItem("books", JSON.stringify(books));
+  }
+
+  static removeBook(isbn) {
+    const books = Store.getBooks();
+
+    books.forEach(function (book, index) {
+      if (book.isbn === isbn) {
+        books.splice(index, 1);
+      }
+    });
+
+    localStorage.setItem("books", JSON.stringify(books));
+  }
+}
+
+// DOM Load Event
+document.addEventListener("DOMContentLoaded", Store.displayBooks);
+
 //event listener for delete
 document.getElementById("book-list").addEventListener("click", function (e) {
   //instantiate UI
@@ -69,12 +117,15 @@ document.getElementById("book-list").addEventListener("click", function (e) {
   //delete book
   ui.deleteBook(e.target);
 
+  //remove from local storage
+  Store.removeBook(e.target.parentElement.previousElementSibling.textContent);
+
   //show message
   ui.showAlert("Book removed", "error");
   e.preventDefault();
 });
 
-// event listener
+// event listener to add books
 document.getElementById("book-form").addEventListener("submit", function (e) {
   //get form value
   const title = document.getElementById("title").value,
@@ -94,6 +145,9 @@ document.getElementById("book-form").addEventListener("submit", function (e) {
   } else {
     //add book to list
     ui.addBookToList(book);
+
+    //add to LS
+    Store.addBook(book);
 
     //clear field
     ui.clearField();
