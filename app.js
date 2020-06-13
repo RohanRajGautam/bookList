@@ -110,6 +110,6 @@ document.getElementById("book-form").addEventListener("submit", function (e) {
 
     ui.showAlert("Book added", "success");
   }
-
+  console.log(ui);
   e.preventDefault();
 });
